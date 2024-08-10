@@ -1,0 +1,10 @@
+//NASA SRTM Digital Elevation 30m
+var srtm = ee.Image("USGS/SRTMGL1_003");
+
+// Compute slope and Aspect from the SRTM image.
+var slope = ee.Terrain.slope(srtm);
+var aspect = ee.Terrain.aspect(srtm);
+Map.addLayer(srtm, {min: 0, max: 2500}, 'DEM');
+Map.addLayer(aspect, {min: 0, max: 360}, 'Aspect');
+Map.addLayer(slope, {min: 0, max: 60}, 'slope');
+
