@@ -1,0 +1,36 @@
+var roi = ee.Geometry.BBox(-100, 21, -98, 22);
+
+var startDate = '2024-01-01';
+var endDate = '2024-04-01';
+
+// Load Sentinel-2 collection and filter by dates and ROI
+var s2Collection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
+  .filterBounds(roi)
+  .filterDate(startDate, endDate);
+
+// Calculate NDVI, B8 = NIR and B4 = RED bands
+var calculateNDVI = function(image) {
+  var ndvi = image.normalizedDifference(['B8', 'B4']).rename('NDVI');
+  return image.addBands(ndvi);
+};
+
+// Apply the NDVI calculation to the collection
+var s2NDVI = s2Collection.map(calculateNDVI);
+
+// Calculate the median NDVI image
+var medianNDVI = s2NDVI.select('NDVI').median();
+
+// Clip the median NDVI image to the ROI
+var clippedNDVI = medianNDVI.clip(roi);
+
+var imageVisParam = {
+  bands: ["NDVI"],
+  max: 0.8,
+  min: -0.3,
+  palette: ["640000","ff0000","ffff00","00c800","006400"]
+};
+
+// Display the clipped NDVI image
+Map.addLayer(medianNDVI, imageVisParam, 'Clipped NDVI');
+
+Map.centerObject(roi, 8);
