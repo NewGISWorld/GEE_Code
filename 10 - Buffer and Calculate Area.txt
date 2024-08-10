@@ -1,0 +1,17 @@
+var point = ee.Geometry.Point(-72, -40);
+
+//add buffer of 10 km
+var roi = point.buffer(10000, 10);
+
+Map.addLayer(roi, {color:'orange'}, 'roi');
+Map.centerObject(roi, 10);
+
+// calculates the area in square meters, use .area() function 
+var sqMeterArea = roi.area();
+print ('sqMeterArea');
+print (sqMeterArea);
+
+// for area in square kilometers
+var sqKmArea = ee.Number(sqMeterArea).divide(1e6).round();
+print ('sqKmArea');
+print(sqKmArea);
