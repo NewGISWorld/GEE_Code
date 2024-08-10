@@ -1,0 +1,44 @@
+// Define the region of interest (ROI) geometry
+var geometry = ee.Geometry.BBox(29, 28, 32, 30)
+
+// Define the start and end dates for the time range
+var startDate = '2018-01-01';
+var endDate = '2022-12-31';
+
+// Load Landsat 8 collection and filter by dates and geometry
+var collection = ee.ImageCollection("LANDSAT/LC08/C02/T1_TOA")
+  .filterBounds(geometry)
+  .filterDate(startDate, endDate)
+  .filter(ee.Filter.lt('CLOUD_COVER', 5));
+// print(collection);
+
+// Select bands for the FCC
+var bands = ['B5', 'B4', 'B3'];
+
+// Calculate the median composite
+var medianImage = collection.select(bands).median();
+
+var clipImage = medianImage.clip(geometry)
+
+var vizParams = {
+  bands: bands,
+  min: 0.04,
+  max: 0.25,
+  gamma: 1.1,
+  opacity:0.9
+};
+
+// Display the Natural Color Composite
+Map.addLayer(clipImage, vizParams, 'FCC');
+
+Export.image.toDrive({
+    image: clipImage.toFloat(),
+    description: 'FCC',
+    scale: 10, // Adjust the scale as needed (in meters)
+    region: geometry,
+    crs: 'EPSG:32643',
+    folder: "Earth_Engine",
+    maxPixels: 1e13
+  });
+
+Map.centerObject(geometry, 13);
