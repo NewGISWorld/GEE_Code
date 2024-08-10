@@ -1,0 +1,5 @@
+//SRTM DEM Image
+var srtm = ee.Image("USGS/SRTMGL1_003");
+
+// Display.
+Map.addLayer(srtm, {min: 0, max: 3000}, 'srtm');
