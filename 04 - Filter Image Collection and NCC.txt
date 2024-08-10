@@ -1,0 +1,33 @@
+// Define the region of interest (roi) geometry
+var roi = ee.Geometry.Point(74.5, 14.5);
+
+// Define the start and end dates for the time range
+var startDate = '2018-01-01';
+var endDate = '2022-12-31';
+
+Map.centerObject(roi, 8);
+
+// Load Landsat 8 collection and filter by dates, geometry and cloud cover
+var collection = ee.ImageCollection("LANDSAT/LC08/C02/T1_TOA")
+  .filterBounds(roi)
+  .filterDate(startDate, endDate)
+  .filter(ee.Filter.lt('CLOUD_COVER', 1));
+// print(collection);
+
+
+// Select bands for the NCC
+var bands = ['B4', 'B3', 'B2'];
+
+// Calculate the median composite
+var medianImage = collection.median();
+
+var vizParams = {
+  bands: bands,
+  min: 0.05,
+  max: 0.2,
+  gamma: 1.2,
+  opacity:1
+};
+
+// Display the Natural Color Composite
+Map.addLayer(medianImage, vizParams, 'NCC');
